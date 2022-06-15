@@ -3,15 +3,15 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "sites_SigespuAppPrueba_name": {
-            "defaultValue": "SigespuAppPrueba",
+            "defaultValue": "SigespuAppPrueba1212",
             "type": "String"
         },
         "serverfarms_Sigespu20220520182819Plan_name": {
-            "defaultValue": "Sigespu20220520182819Plan",
+            "defaultValue": "Sigespu20220520182819Plan1212",
             "type": "String"
         },
         "flexibleServers_sigespupruebadb_name": {
-            "defaultValue": "sigespupruebadb",
+            "defaultValue": "sigespupruebadb1212",
             "type": "String"
         },
         "actionGroups_Application_Insights_Smart_Detection_name": {
