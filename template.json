@@ -25,21 +25,79 @@
         "components_sigespuinsight_externalid": {
             "defaultValue": "/subscriptions/c0cdfee7-76be-43a8-801e-fd23622f418a/resourceGroups/sigespu-prueba/providers/microsoft.insights/components/sigespuinsight",
             "type": "String"
+        },
+       "administratorLogin": {
+      "type": "String"
+        },
+        "administratorLoginPassword": {
+          "type": "SecureString"
+        },
+        "location": {
+          "type": "String"
+        },
+        "serverName": {
+          "type": "String"
+        },
+        "serverEdition": {
+          "type": "String"
+        },
+        "storageSizeMB": {
+          "type": "Int"
+        },
+        "haEnabled": {
+          "type": "string",
+          "defaultValue": "Disabled"
+        },
+        "availabilityZone": {
+          "type": "String"
+        },
+        "version": {
+          "type": "String"
+        },
+        "tags": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "firewallRules": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "vnetData": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "backupRetentionDays": {
+          "type": "Int"
         }
+        
+       
     },
-    "variables": {},
+    "variables": {
+    "api": "2021-05-01",
+    "firewallRules": "[parameters('firewallRules').rules]",
+    "publicNetworkAccess": "[if(empty(parameters('vnetData')), 'Enabled', 'Disabled')]",
+    "vnetDataSet": "[if(empty(parameters('vnetData')), json('{ \"subnetArmResourceId\": \"\" }'), parameters('vnetData'))]",
+    "finalVnetData": "[json(concat('{ \"subnetArmResourceId\": \"', variables('vnetDataSet').subnetArmResourceId, '\"}'))]"
+  
+    },
     "resources": [
         {
             "type": "Microsoft.DBforMySQL/flexibleServers",
-            "apiVersion": "2021-05-01",
+            "apiVersion": "[variables('api')]",
             "name": "[parameters('flexibleServers_sigespupruebadb_name')]",
-            "location": "East US",
+            "location": "[parameters('location')]",
             "sku": {
                 "name": "Standard_B1ms",
                 "tier": "Burstable"
             },
+            "tags": "[parameters('tags')]",
             "properties": {
+                "version": "[parameters('version')]",
                 "administratorLogin": "sigespuadmin",
+                "administratorLoginPassword": "[parameters('administratorLoginPassword')]",
+                "publicNetworkAccess": "[variables('publicNetworkAccess')]",
+                "DelegatedSubnetArguments": "[if(empty(parameters('vnetData')), json('null'), variables('finalVnetData'))]",
+                "haEnabled": "[parameters('haEnabled')]",
                 "storage": {
                     "storageSizeGB": 20,
                     "iops": 360,
