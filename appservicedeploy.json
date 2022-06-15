@@ -3,11 +3,11 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "sites_SigespuAppPrueba_name": {
-            "defaultValue": "SigespuAppPrueba1212",
+            "defaultValue": "SigespuAppPrueba12123",
             "type": "String"
         },
         "serverfarms_Sigespu20220520182819Plan_name": {
-            "defaultValue": "Sigespu20220520182819Plan1212",
+            "defaultValue": "Sigespu20220520182819Plan12123",
             "type": "String"
         }
     },
