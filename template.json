@@ -2,16 +2,28 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "sites_SigespuAppTNCR_name": {
+        "sites_SigespuAppPrueba_name": {
             "defaultValue": "SigespuAppTNCR",
             "type": "String"
         },
-        "serverfarms_sigespuTnCrPlan_name": {
-            "defaultValue": "sigespuTnCrPlan",
+        "serverfarms_Sigespu20220520182819Plan_name": {
+            "defaultValue": "SigespuAppTNCRPlan",
             "type": "String"
         },
-        "flexibleServers_sigespudbtncr_name": {
+        "flexibleServers_sigespupruebadb_name": {
             "defaultValue": "sigespudbtncr",
+            "type": "String"
+        },
+        "actionGroups_Application_Insights_Smart_Detection_name": {
+            "defaultValue": "Application Insights Smart Detection",
+            "type": "String"
+        },
+        "smartdetectoralertrules_failure_anomalies___sigespuinsight_name": {
+            "defaultValue": "failure anomalies - sigespuinsight",
+            "type": "String"
+        },
+        "components_sigespuinsight_externalid": {
+            "defaultValue": "/subscriptions/c0cdfee7-76be-43a8-801e-fd23622f418a/resourceGroups/sigespu-prueba/providers/microsoft.insights/components/sigespuinsight",
             "type": "String"
         }
     },
@@ -20,7 +32,7 @@
         {
             "type": "Microsoft.DBforMySQL/flexibleServers",
             "apiVersion": "2021-05-01",
-            "name": "[parameters('flexibleServers_sigespudbtncr_name')]",
+            "name": "[parameters('flexibleServers_sigespupruebadb_name')]",
             "location": "East US",
             "sku": {
                 "name": "Standard_B1ms",
@@ -53,9 +65,41 @@
             }
         },
         {
+            "type": "microsoft.insights/actionGroups",
+            "apiVersion": "2022-06-01",
+            "name": "[parameters('actionGroups_Application_Insights_Smart_Detection_name')]",
+            "location": "Global",
+            "properties": {
+                "groupShortName": "SmartDetect",
+                "enabled": true,
+                "emailReceivers": [],
+                "smsReceivers": [],
+                "webhookReceivers": [],
+                "eventHubReceivers": [],
+                "itsmReceivers": [],
+                "azureAppPushReceivers": [],
+                "automationRunbookReceivers": [],
+                "voiceReceivers": [],
+                "logicAppReceivers": [],
+                "azureFunctionReceivers": [],
+                "armRoleReceivers": [
+                    {
+                        "name": "Monitoring Contributor",
+                        "roleId": "749f88d5-cbae-40b8-bcfc-e573ddc772fa",
+                        "useCommonAlertSchema": true
+                    },
+                    {
+                        "name": "Monitoring Reader",
+                        "roleId": "43d0d8ad-25c7-4714-9337-8ba259a9fe05",
+                        "useCommonAlertSchema": true
+                    }
+                ]
+            }
+        },
+        {
             "type": "Microsoft.Web/serverfarms",
             "apiVersion": "2021-03-01",
-            "name": "[parameters('serverfarms_sigespuTnCrPlan_name')]",
+            "name": "[parameters('serverfarms_Sigespu20220520182819Plan_name')]",
             "location": "Central US",
             "sku": {
                 "name": "F1",
@@ -79,11 +123,37 @@
             }
         },
         {
+            "type": "microsoft.alertsmanagement/smartdetectoralertrules",
+            "apiVersion": "2021-04-01",
+            "name": "[parameters('smartdetectoralertrules_failure_anomalies___sigespuinsight_name')]",
+            "location": "global",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/actionGroups', parameters('actionGroups_Application_Insights_Smart_Detection_name'))]"
+            ],
+            "properties": {
+                "description": "Failure Anomalies notifies you of an unusual rise in the rate of failed HTTP requests or dependency calls.",
+                "state": "Enabled",
+                "severity": "Sev3",
+                "frequency": "PT1M",
+                "detector": {
+                    "id": "FailureAnomaliesDetector"
+                },
+                "scope": [
+                    "[parameters('components_sigespuinsight_externalid')]"
+                ],
+                "actionGroups": {
+                    "groupIds": [
+                        "[resourceId('microsoft.insights/actionGroups', parameters('actionGroups_Application_Insights_Smart_Detection_name'))]"
+                    ]
+                }
+            }
+        },
+        {
             "type": "Microsoft.DBforMySQL/flexibleServers/databases",
             "apiVersion": "2021-05-01",
-            "name": "[concat(parameters('flexibleServers_sigespudbtncr_name'), '/information_schema')]",
+            "name": "[concat(parameters('flexibleServers_sigespupruebadb_name'), '/information_schema')]",
             "dependsOn": [
-                "[resourceId('Microsoft.DBforMySQL/flexibleServers', parameters('flexibleServers_sigespudbtncr_name'))]"
+                "[resourceId('Microsoft.DBforMySQL/flexibleServers', parameters('flexibleServers_sigespupruebadb_name'))]"
             ],
             "properties": {
                 "charset": "utf8",
@@ -93,9 +163,9 @@
         {
             "type": "Microsoft.DBforMySQL/flexibleServers/databases",
             "apiVersion": "2021-05-01",
-            "name": "[concat(parameters('flexibleServers_sigespudbtncr_name'), '/mysql')]",
+            "name": "[concat(parameters('flexibleServers_sigespupruebadb_name'), '/mysql')]",
             "dependsOn": [
-                "[resourceId('Microsoft.DBforMySQL/flexibleServers', parameters('flexibleServers_sigespudbtncr_name'))]"
+                "[resourceId('Microsoft.DBforMySQL/flexibleServers', parameters('flexibleServers_sigespupruebadb_name'))]"
             ],
             "properties": {
                 "charset": "latin1",
@@ -105,9 +175,9 @@
         {
             "type": "Microsoft.DBforMySQL/flexibleServers/databases",
             "apiVersion": "2021-05-01",
-            "name": "[concat(parameters('flexibleServers_sigespudbtncr_name'), '/performance_schema')]",
+            "name": "[concat(parameters('flexibleServers_sigespupruebadb_name'), '/performance_schema')]",
             "dependsOn": [
-                "[resourceId('Microsoft.DBforMySQL/flexibleServers', parameters('flexibleServers_sigespudbtncr_name'))]"
+                "[resourceId('Microsoft.DBforMySQL/flexibleServers', parameters('flexibleServers_sigespupruebadb_name'))]"
             ],
             "properties": {
                 "charset": "utf8",
@@ -117,9 +187,9 @@
         {
             "type": "Microsoft.DBforMySQL/flexibleServers/databases",
             "apiVersion": "2021-05-01",
-            "name": "[concat(parameters('flexibleServers_sigespudbtncr_name'), '/sigespu')]",
+            "name": "[concat(parameters('flexibleServers_sigespupruebadb_name'), '/sigespu')]",
             "dependsOn": [
-                "[resourceId('Microsoft.DBforMySQL/flexibleServers', parameters('flexibleServers_sigespudbtncr_name'))]"
+                "[resourceId('Microsoft.DBforMySQL/flexibleServers', parameters('flexibleServers_sigespupruebadb_name'))]"
             ],
             "properties": {
                 "charset": "latin1",
@@ -129,9 +199,9 @@
         {
             "type": "Microsoft.DBforMySQL/flexibleServers/databases",
             "apiVersion": "2021-05-01",
-            "name": "[concat(parameters('flexibleServers_sigespudbtncr_name'), '/sys')]",
+            "name": "[concat(parameters('flexibleServers_sigespupruebadb_name'), '/sys')]",
             "dependsOn": [
-                "[resourceId('Microsoft.DBforMySQL/flexibleServers', parameters('flexibleServers_sigespudbtncr_name'))]"
+                "[resourceId('Microsoft.DBforMySQL/flexibleServers', parameters('flexibleServers_sigespupruebadb_name'))]"
             ],
             "properties": {
                 "charset": "utf8",
@@ -141,13 +211,13 @@
         {
             "type": "Microsoft.Web/sites",
             "apiVersion": "2021-03-01",
-            "name": "[parameters('sites_SigespuAppTNCR_name')]",
+            "name": "[parameters('sites_SigespuAppPrueba_name')]",
             "location": "Central US",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_sigespuTnCrPlan_name'))]"
+                "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_Sigespu20220520182819Plan_name'))]"
             ],
             "tags": {
-                "hidden-related:/subscriptions/c0cdfee7-76be-43a8-801e-fd23622f418a/resourceGroups/SIGESPU-prueba/providers/Microsoft.Web/serverFarms/sigespuTnCrPlan": "empty"
+                "hidden-related:/subscriptions/c0cdfee7-76be-43a8-801e-fd23622f418a/resourceGroups/SIGESPU-prueba/providers/Microsoft.Web/serverFarms/Sigespu20220520182819Plan": "empty"
             },
             "kind": "app",
             "identity": {
@@ -157,17 +227,17 @@
                 "enabled": true,
                 "hostNameSslStates": [
                     {
-                        "name": "SigespuAppTNCR.azurewebsites.net",
+                        "name": "sigespuappprueba.azurewebsites.net",
                         "sslState": "Disabled",
                         "hostType": "Standard"
                     },
                     {
-                        "name": "SigespuAppTNCR.scm.azurewebsites.net",
+                        "name": "sigespuappprueba.scm.azurewebsites.net",
                         "sslState": "Disabled",
                         "hostType": "Repository"
                     }
                 ],
-                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_sigespuTnCrPlan_name'))]",
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_Sigespu20220520182819Plan_name'))]",
                 "reserved": false,
                 "isXenon": false,
                 "hyperV": false,
@@ -196,13 +266,13 @@
         {
             "type": "Microsoft.Web/sites/basicPublishingCredentialsPolicies",
             "apiVersion": "2021-03-01",
-            "name": "[concat(parameters('sites_SigespuAppTNCR_name'), '/ftp')]",
+            "name": "[concat(parameters('sites_SigespuAppPrueba_name'), '/ftp')]",
             "location": "Central US",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_SigespuAppTNCR_name'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_SigespuAppPrueba_name'))]"
             ],
             "tags": {
-                "hidden-related:/subscriptions/c0cdfee7-76be-43a8-801e-fd23622f418a/resourceGroups/SIGESPU-prueba/providers/Microsoft.Web/serverFarms/sigespuTnCrPlan": "empty"
+                "hidden-related:/subscriptions/c0cdfee7-76be-43a8-801e-fd23622f418a/resourceGroups/SIGESPU-prueba/providers/Microsoft.Web/serverFarms/Sigespu20220520182819Plan": "empty"
             },
             "properties": {
                 "allow": true
@@ -211,13 +281,13 @@
         {
             "type": "Microsoft.Web/sites/basicPublishingCredentialsPolicies",
             "apiVersion": "2021-03-01",
-            "name": "[concat(parameters('sites_SigespuAppTNCR_name'), '/scm')]",
+            "name": "[concat(parameters('sites_SigespuAppPrueba_name'), '/scm')]",
             "location": "Central US",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_SigespuAppTNCR_name'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_SigespuAppPrueba_name'))]"
             ],
             "tags": {
-                "hidden-related:/subscriptions/c0cdfee7-76be-43a8-801e-fd23622f418a/resourceGroups/SIGESPU-prueba/providers/Microsoft.Web/serverFarms/sigespuTnCrPlan": "empty"
+                "hidden-related:/subscriptions/c0cdfee7-76be-43a8-801e-fd23622f418a/resourceGroups/SIGESPU-prueba/providers/Microsoft.Web/serverFarms/Sigespu20220520182819Plan": "empty"
             },
             "properties": {
                 "allow": true
@@ -226,13 +296,13 @@
         {
             "type": "Microsoft.Web/sites/config",
             "apiVersion": "2021-03-01",
-            "name": "[concat(parameters('sites_SigespuAppTNCR_name'), '/web')]",
+            "name": "[concat(parameters('sites_SigespuAppPrueba_name'), '/web')]",
             "location": "Central US",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_SigespuAppTNCR_name'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_SigespuAppPrueba_name'))]"
             ],
             "tags": {
-                "hidden-related:/subscriptions/c0cdfee7-76be-43a8-801e-fd23622f418a/resourceGroups/SIGESPU-prueba/providers/Microsoft.Web/serverFarms/sigespuTnCrPlan": "empty"
+                "hidden-related:/subscriptions/c0cdfee7-76be-43a8-801e-fd23622f418a/resourceGroups/SIGESPU-prueba/providers/Microsoft.Web/serverFarms/Sigespu20220520182819Plan": "empty"
             },
             "properties": {
                 "numberOfWorkers": 1,
@@ -255,7 +325,7 @@
                 "acrUseManagedIdentityCreds": false,
                 "logsDirectorySizeLimit": 35,
                 "detailedErrorLoggingEnabled": false,
-                "publishingUsername": "$SigespuAppTNCR",
+                "publishingUsername": "$SigespuAppPrueba",
                 "scmType": "None",
                 "use32BitWorkerProcess": true,
                 "webSocketsEnabled": false,
@@ -310,23 +380,23 @@
         {
             "type": "Microsoft.Web/sites/hostNameBindings",
             "apiVersion": "2021-03-01",
-            "name": "[concat(parameters('sites_SigespuAppTNCR_name'), '/', parameters('sites_SigespuAppTNCR_name'), '.azurewebsites.net')]",
+            "name": "[concat(parameters('sites_SigespuAppPrueba_name'), '/', parameters('sites_SigespuAppPrueba_name'), '.azurewebsites.net')]",
             "location": "Central US",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_SigespuAppTNCR_name'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_SigespuAppPrueba_name'))]"
             ],
             "properties": {
-                "siteName": "SigespuAppTNCR",
+                "siteName": "SigespuAppPrueba",
                 "hostNameType": "Verified"
             }
         },
         {
             "type": "Microsoft.Web/sites/siteextensions",
             "apiVersion": "2021-03-01",
-            "name": "[concat(parameters('sites_SigespuAppTNCR_name'), '/Microsoft.AspNetCore.AzureAppServices.SiteExtension')]",
+            "name": "[concat(parameters('sites_SigespuAppPrueba_name'), '/Microsoft.AspNetCore.AzureAppServices.SiteExtension')]",
             "location": "Central US",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_SigespuAppTNCR_name'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_SigespuAppPrueba_name'))]"
             ]
         }
     ]
