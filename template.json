@@ -47,7 +47,7 @@
       {
         "type": "Microsoft.DBforMySQL/flexibleServers/firewallRules",
         "apiVersion": "2021-05-01",
-        "name": "allowAll",
+        "name": "SigespuApptn",
         "properties": {
           "endIpAddress": "255.255.255.255",
           "startIpAddress": "0.0.0.0"
