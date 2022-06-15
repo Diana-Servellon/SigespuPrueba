@@ -2,8 +2,8 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "sites_SigespuAppPrueba_name": {
-            "defaultValue": "SigespuAppPrueba",
+        "sites_SigespuApp_name": {
+            "defaultValue": "SigespuApp",
             "type": "String"
         },
         "serverfarms_Sigespu20220520182819Plan_name": {
