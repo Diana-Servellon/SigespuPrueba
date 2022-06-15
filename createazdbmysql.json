@@ -1,0 +1,118 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "flexibleServers_sigespupruebadb_name": {
+            "defaultValue": "sigespupruebadb",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.DBforMySQL/flexibleServers",
+            "apiVersion": "2021-05-01",
+            "name": "[parameters('flexibleServers_sigespupruebadb_name')]",
+            "location": "East US",
+            "sku": {
+                "name": "Standard_B1ms",
+                "tier": "Burstable"
+            },
+            "properties": {
+                "administratorLogin": "sigespuadmin",
+                "storage": {
+                    "storageSizeGB": 20,
+                    "iops": 360,
+                    "autoGrow": "Enabled"
+                },
+                "version": "5.7",
+                "availabilityZone": "2",
+                "maintenanceWindow": {
+                    "customWindow": "Disabled",
+                    "dayOfWeek": 0,
+                    "startHour": 0,
+                    "startMinute": 0
+                },
+                "replicationRole": "None",
+                "network": {},
+                "backup": {
+                    "backupRetentionDays": 35,
+                    "geoRedundantBackup": "Disabled"
+                },
+                "highAvailability": {
+                    "mode": "Disabled"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.DBforMySQL/flexibleServers/databases",
+            "apiVersion": "2021-05-01",
+            "name": "[concat(parameters('flexibleServers_sigespupruebadb_name'), '/information_schema')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.DBforMySQL/flexibleServers', parameters('flexibleServers_sigespupruebadb_name'))]"
+            ],
+            "properties": {
+                "charset": "utf8",
+                "collation": "utf8_general_ci"
+            }
+        },
+        {
+            "type": "Microsoft.DBforMySQL/flexibleServers/databases",
+            "apiVersion": "2021-05-01",
+            "name": "[concat(parameters('flexibleServers_sigespupruebadb_name'), '/mysql')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.DBforMySQL/flexibleServers', parameters('flexibleServers_sigespupruebadb_name'))]"
+            ],
+            "properties": {
+                "charset": "latin1",
+                "collation": "latin1_swedish_ci"
+            }
+        },
+        {
+            "type": "Microsoft.DBforMySQL/flexibleServers/databases",
+            "apiVersion": "2021-05-01",
+            "name": "[concat(parameters('flexibleServers_sigespupruebadb_name'), '/performance_schema')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.DBforMySQL/flexibleServers', parameters('flexibleServers_sigespupruebadb_name'))]"
+            ],
+            "properties": {
+                "charset": "utf8",
+                "collation": "utf8_general_ci"
+            }
+        },
+        {
+            "type": "Microsoft.DBforMySQL/flexibleServers/databases",
+            "apiVersion": "2021-05-01",
+            "name": "[concat(parameters('flexibleServers_sigespupruebadb_name'), '/sigespu')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.DBforMySQL/flexibleServers', parameters('flexibleServers_sigespupruebadb_name'))]"
+            ],
+            "properties": {
+                "charset": "latin1",
+                "collation": "latin1_swedish_ci"
+            }
+        },
+      {
+        "type": "Microsoft.DBforMySQL/flexibleServers/databases",
+        "apiVersion": "2021-05-01",
+        "name": "[concat(parameters('flexibleServers_sigespupruebadb_name'), '/sys')]",
+        "dependsOn": [
+          "[resourceId('Microsoft.DBforMySQL/flexibleServers', parameters('flexibleServers_sigespupruebadb_name'))]"
+        ],
+        "properties": {
+          "charset": "utf8",
+          "collation": "utf8_general_ci"
+        }
+      }
+
+      {
+        "type": "Microsoft.DBforMySQL/flexibleServers/firewallRules",
+        "apiVersion": "2021-05-01",
+        "name": "SigespuApptn",
+        "properties": {
+          "endIpAddress": "0.0.0.0",
+          "startIpAddress": "255.255.255.255"
+        }
+      }
+    ]
+}
