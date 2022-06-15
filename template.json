@@ -64,38 +64,7 @@
                 }
             }
         },
-        {
-            "type": "microsoft.insights/actionGroups",
-            "apiVersion": "2022-06-01",
-            "name": "[parameters('actionGroups_Application_Insights_Smart_Detection_name')]",
-            "location": "Global",
-            "properties": {
-                "groupShortName": "SmartDetect",
-                "enabled": true,
-                "emailReceivers": [],
-                "smsReceivers": [],
-                "webhookReceivers": [],
-                "eventHubReceivers": [],
-                "itsmReceivers": [],
-                "azureAppPushReceivers": [],
-                "automationRunbookReceivers": [],
-                "voiceReceivers": [],
-                "logicAppReceivers": [],
-                "azureFunctionReceivers": [],
-                "armRoleReceivers": [
-                    {
-                        "name": "Monitoring Contributor",
-                        "roleId": "749f88d5-cbae-40b8-bcfc-e573ddc772fa",
-                        "useCommonAlertSchema": true
-                    },
-                    {
-                        "name": "Monitoring Reader",
-                        "roleId": "43d0d8ad-25c7-4714-9337-8ba259a9fe05",
-                        "useCommonAlertSchema": true
-                    }
-                ]
-            }
-        },
+        
         {
             "type": "Microsoft.Web/serverfarms",
             "apiVersion": "2021-03-01",
@@ -122,32 +91,7 @@
                 "zoneRedundant": false
             }
         },
-        {
-            "type": "microsoft.alertsmanagement/smartdetectoralertrules",
-            "apiVersion": "2021-04-01",
-            "name": "[parameters('smartdetectoralertrules_failure_anomalies___sigespuinsight_name')]",
-            "location": "global",
-            "dependsOn": [
-                "[resourceId('microsoft.insights/actionGroups', parameters('actionGroups_Application_Insights_Smart_Detection_name'))]"
-            ],
-            "properties": {
-                "description": "Failure Anomalies notifies you of an unusual rise in the rate of failed HTTP requests or dependency calls.",
-                "state": "Enabled",
-                "severity": "Sev3",
-                "frequency": "PT1M",
-                "detector": {
-                    "id": "FailureAnomaliesDetector"
-                },
-                "scope": [
-                    "[parameters('components_sigespuinsight_externalid')]"
-                ],
-                "actionGroups": {
-                    "groupIds": [
-                        "[resourceId('microsoft.insights/actionGroups', parameters('actionGroups_Application_Insights_Smart_Detection_name'))]"
-                    ]
-                }
-            }
-        },
+       
         {
             "type": "Microsoft.DBforMySQL/flexibleServers/databases",
             "apiVersion": "2021-05-01",
